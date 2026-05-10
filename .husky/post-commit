@@ -2,7 +2,7 @@
 # コミット成功後にレビューステータスファイルを削除する
 # 次回コミット時に新しいレビューが必須になる
 
-FINDINGS_DIR="05_cc-sdd_specs分割/review-findings"
+FINDINGS_DIR="review-findings"
 
 deleted=0
 
