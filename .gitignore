@@ -1,0 +1,27 @@
+# 環境変数ファイル（機密情報を含む）
+.env
+
+# Java / Gradle
+build/
+**/build/
+.gradle/
+*.class
+*.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/vite.config.js
+frontend/vite.config.d.ts
+
+# レビューステータスファイル（コミット判定用、git管理外）
+review-findings/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,114 @@
+#!/bin/sh
+# MCP review-server と連携するコミット前レビューゲート
+# 通常レビュー: Critical/High がすべて resolved で通過
+# セキュリティレビュー: 全件 resolved で通過
+# ソースコードが staged に含まれない場合はレビュー不要でそのまま通過
+
+# --- ソースコード判定 ---
+SOURCE_EXTENSIONS="\.java$|\.kt$|\.scala$|\.groovy$|\.ts$|\.tsx$|\.js$|\.jsx$|\.mjs$|\.cjs$|\.py$|\.rb$|\.go$|\.rs$|\.c$|\.cpp$|\.h$|\.hpp$|\.cs$|\.swift$|\.vue$|\.svelte$|\.html$|\.htm$|\.css$|\.scss$|\.sass$|\.less$|\.sql$|\.sh$|\.bash$|\.zsh$|\.properties$|\.yml$|\.yaml$|\.xml$|\.gradle$|\.toml$|\.graphql$|\.proto$"
+SOURCE_FILENAMES="Dockerfile|Makefile|Jenkinsfile|Vagrantfile|Rakefile|Gemfile"
+
+STAGED_FILES=$(git diff --cached --name-only)
+if [ -z "$STAGED_FILES" ]; then
+  exit 0
+fi
+
+HAS_SOURCE=0
+for f in $STAGED_FILES; do
+  fname=$(basename "$f")
+  if echo "$f" | grep -qE "$SOURCE_EXTENSIONS"; then
+    HAS_SOURCE=1
+    break
+  fi
+  if echo "$fname" | grep -qE "^($SOURCE_FILENAMES)$"; then
+    HAS_SOURCE=1
+    break
+  fi
+done
+
+if [ "$HAS_SOURCE" -eq 0 ]; then
+  exit 0
+fi
+
+# --- レビューゲート ---
+GENERAL_QUEUE="05_cc-sdd_specs分割/review-findings/review-queue.json"
+SECURITY_QUEUE="05_cc-sdd_specs分割/review-findings/security-review-queue.json"
+
+if [ ! -f "$GENERAL_QUEUE" ] || [ ! -f "$SECURITY_QUEUE" ]; then
+  echo ""
+  echo "============================================================"
+  echo "  レビュー未実施: コミットをブロックしました"
+  echo "============================================================"
+  echo ""
+  echo "  以下のレビューが未実施です:"
+  [ ! -f "$GENERAL_QUEUE" ] && echo "    - 通常レビュー (review_start)"
+  [ ! -f "$SECURITY_QUEUE" ] && echo "    - セキュリティレビュー (security_review_start)"
+  echo ""
+  echo "  【実行手順】"
+  echo "  Cursor チャットで review_orchestrate を実行してください。"
+  echo "  レビュー→修正→再レビューが自動的にループ実行されます。"
+  echo "============================================================"
+  echo ""
+  exit 1
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "Warning: node not found, skipping review queue check"
+  exit 0
+fi
+
+RESULT=$(node -e "
+  const fs = require('fs');
+  const blockers = [];
+
+  function check(file, label, policy) {
+    try {
+      const queue = JSON.parse(fs.readFileSync(file, 'utf-8'));
+      const unresolved = queue.findings.filter(f => {
+        const open = f.remediation_status === 'open' || f.remediation_status === 'in_progress' || f.remediation_status === 're_review_failed';
+        if (!open) return false;
+        if (policy === 'critical_high') return f.severity === 'critical' || f.severity === 'high';
+        return true;
+      });
+      if (unresolved.length > 0) {
+        blockers.push(label + ': ' + unresolved.length + '件');
+      }
+    } catch (e) {
+      blockers.push(label + ': 解析エラー');
+    }
+  }
+
+  check('$GENERAL_QUEUE', '通常(Critical/High)', 'critical_high');
+  check('$SECURITY_QUEUE', 'セキュリティ(全件)', 'all');
+
+  if (blockers.length > 0) {
+    console.log('BLOCK|' + blockers.join(', '));
+  } else {
+    console.log('ALLOW');
+  }
+" 2>&1)
+
+case "$RESULT" in
+  ALLOW)
+    exit 0
+    ;;
+  BLOCK*)
+    DETAIL=$(echo "$RESULT" | cut -d'|' -f2)
+    echo ""
+    echo "============================================================"
+    echo "  未解決のレビュー指摘: コミットをブロックしました"
+    echo "============================================================"
+    echo ""
+    echo "  ${DETAIL}"
+    echo ""
+    echo "  Cursor チャットで review_orchestrate を実行してください。"
+    echo "  【通常レビュー】Critical/High 全解決で通過"
+    echo "  【セキュリティレビュー】全件解決で通過"
+    echo "============================================================"
+    echo ""
+    exit 1
+    ;;
+  *)
+    exit 0
+    ;;
+esac

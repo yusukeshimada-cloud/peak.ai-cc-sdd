@@ -1,0 +1,22 @@
+---
+description: Reflect split design status on spec-status
+alwaysApply: true
+---
+
+# Spec Status Split Rule
+
+When handling `/kiro/spec-status` for this project, include split design artifact presence and consistency in the design-phase status.
+
+1. Treat `.kiro/specs/<feature>/design.md` as the overview design artifact.
+2. Treat `.kiro/specs/<feature>/design/*.md` as the detailed split design artifacts.
+3. Use `spec-design-split-design-files.mdc` as the source of truth for the `design/` directory structure, file kinds, and split granularity.
+4. If `design.md` references files under `design/`, verify that those files exist.
+5. If files exist under `design/`, reflect their presence in design progress reporting.
+6. If split design is required or referenced but `design/` is missing or empty, do not treat design status as complete.
+7. If files exist under `design/` but are not referenced from `design.md`, report that as an inconsistency.
+8. Design status is per-feature: reflect `design.md`, `design/*.md`, and optional `stub.md`. Common `requirements.md` under `.kiro/specs/common/` may exist, but there is no `common/design.md` from spec-design.
+
+- Distinguish at least these cases in status reporting: overview missing, overview present but `design/` missing, `design/` present but empty, overview/detail references inconsistent, overview and split design both present.
+- If `design.md` references files under `design/` but those files are missing, treat that as a blocker.
+- If split design is expected for the feature but `.kiro/specs/<feature>/design/` is missing or empty, direct the user to re-run `/kiro/spec-design`.
+- This rule applies only to the `spec-status` workflow.

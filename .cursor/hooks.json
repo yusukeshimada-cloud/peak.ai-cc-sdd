@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "matcher": "rm\\s+-rf|git push --force|kubectl .*prod|terraform apply",
+        "command": "node .cursor/hooks/block-dangerous-shell.mjs",
+        "timeout": 5,
+        "failClosed": true
+      },
+      {
+        "matcher": "git\\s+commit",
+        "command": "node .cursor/hooks/auto-review-gate.mjs",
+        "timeout": 10,
+        "failClosed": false
+      }
+    ],
+    "stop": [
+      {
+        "command": "node .cursor/hooks/review-loop-continue.mjs",
+        "loop_limit": 20,
+        "timeout": 5
+      }
+    ]
+  }
+}

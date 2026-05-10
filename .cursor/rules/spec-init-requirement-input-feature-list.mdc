@@ -1,0 +1,62 @@
+---
+description: Generate requirement input feature list on spec-init
+alwaysApply: true
+---
+
+# Spec Init Requirement Input Rule
+
+When handling `/kiro/spec-init` in this project, do the following before requirements work starts.
+
+- Generate `requirement-input-feature-list.md` at the workspace root as the feature list used for requirements definition.
+- Accept the feature-list input in the form `spec-init --list <input>`.
+- Read the input and check these viewpoints when building the table:
+  - one feature must not contain multiple business functions
+  - do not split the same business function by technical layer such as frontend and backend
+  - each feature should be small enough to fit roughly 10-15 steps in `tasks.md`
+  - common specifications should be separated instead of buried inside individual features
+- Create the table with these columns in this order:
+  - `機能ID`
+  - `大分類ID`
+  - `大分類(領域)`
+  - `中分類ID`
+  - `中分類(業務群)`
+  - `小分類ID`
+  - `小分類(業務名)`
+  - `処理区分`
+  - `機能名称`
+  - `機能要件`
+  - `難易度`
+  - `備考(注意点を含む)`
+- Set `大分類ID` as alphabetic abbreviations such as `AA` for `AuthenticationAccount`.
+- Set `中分類ID` and `小分類ID` as numeric values.
+- Determine `機能種別` for each feature from SFC.
+- Map `機能種別` to one alphabetic code using:
+  - `画面 = S`
+  - `バッチ = E`
+  - `帳票 = R`
+  - `インターフェース = I`
+  - `移行 = C`
+- Set `機能ID = 大分類ID + 機能種別 + 中分類ID + 小分類ID`.
+- Do not use `処理区分` when composing `機能ID`.
+- Set `難易度` using this scale:
+  - `VS`: とても簡単
+  - `S`: 簡単
+  - `M`: 中程度
+  - `C`: 複雑
+- Evaluate `難易度` using technical difficulty, estimated effort, importance, and whether external integration exists.
+- After `requirement-input-feature-list.md` is generated, treat its `機能ID` column as the source of truth for feature-level spec initialization.
+- Create `.kiro/specs/common` if it does not already exist.
+- Create one folder under `.kiro/specs/` for each `機能ID`.
+- Create a `spec.json` inside each feature ID folder if it does not already exist.
+- Generate each `spec.json` from `.kiro/settings/templates/specs/init.json`.
+- Set `feature_name` in `spec.json` to the feature ID string exactly as used in the folder name.
+- Set `created_at` and `updated_at` to the current timestamp when a new `spec.json` is created.
+- Do not overwrite an existing `spec.json`.
+- If the newly generated feature ID list contains IDs that do not yet exist under `.kiro/specs/`, create only those missing folders and their `spec.json` files.
+- If `.kiro/specs/` already contains feature ID folders that are no longer listed in `requirement-input-feature-list.md`, do not delete them automatically.
+- When the reviewed feature list changes after `spec-init`, use re-running `/kiro/spec-init --list <input>` only for additive synchronization.
+- Do not generate feature-level `requirements.md`, `design.md`, `tasks.md`, or implementation artifacts during `spec-init`.
+
+- If `--list` is not specified, stop and ask the user instead of defaulting to any file.
+- If the input file for `--list` does not exist, stop and ask the user instead of guessing.
+- This rule applies only to the `spec-init` workflow.

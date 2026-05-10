@@ -1,0 +1,22 @@
+---
+description: Implement from split design artifacts on spec-impl
+alwaysApply: true
+---
+
+# Spec Impl Split Rule
+
+When handling `/kiro/spec-impl` for this project, use the split design artifacts as implementation evidence, not just the overview design.
+
+1. Treat `.kiro/specs/<feature>/design.md` as the overview artifact for feature purpose, responsibilities, boundaries, and requirement relationships.
+2. Treat `.kiro/specs/<feature>/design/*.md` as the detailed design source of truth for implementation contracts.
+3. Use `spec-design-split-design-files.mdc` as the source of truth for the `design/` directory structure, file kinds, and split granularity.
+4. If `design.md` references files under `design/`, read all referenced files before starting implementation.
+5. When implementation details in `design/*.md` are more specific than the overview in `design.md`, follow the split design artifacts.
+6. If `design.md` and `design/*.md` conflict, do not silently resolve the conflict by guesswork; surface the inconsistency and ask for clarification.
+7. Cross-cutting rules for implementation live in each feature’s `design.md` and steering. For cross-feature consistency, read related features’ `design.md` and `design/*.md`. Do not assume `.kiro/specs/common/design.md` exists. Read `stub.md` if present and clarify before treating stubs as final contracts.
+8. Do not treat task completion alone as sufficient; confirm the relevant split design contracts are reflected in the implementation.
+
+- If `design.md` references files under `design/` but those files are missing, do not start implementation.
+- If split design is expected for the feature but `.kiro/specs/<feature>/design/` is missing or empty, direct the user to re-run `/kiro/spec-design`.
+- If implementation would require inventing behavior because the split design is incomplete, stop instead of filling the gap by assumption.
+- This rule applies only to the `spec-impl` workflow.

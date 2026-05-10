@@ -1,0 +1,21 @@
+---
+description: Validate implementation against split design artifacts
+alwaysApply: true
+---
+
+# Validate Impl Split Rule
+
+When handling `/kiro/validate-impl` for this project, validate implementation against both the overview design and the split design artifacts.
+
+1. Treat `.kiro/specs/<feature>/design.md` as the overview design evidence for overall design direction, responsibilities, and boundaries.
+2. Treat `.kiro/specs/<feature>/design/*.md` as the detailed design evidence for implementation validation.
+3. Use `spec-design-split-design-files.mdc` as the source of truth for the `design/` directory structure, file kinds, and split granularity.
+4. If `design.md` references files under `design/`, read all referenced files before validating implementation.
+5. If split design files exist, do not declare design alignment based on `design.md` alone.
+6. Validate the implementation against the contracts relevant to the target tasks across the applicable split design files.
+7. Use each feature’s `design.md` (hub) and related features’ `design.md` / `design/*.md` for cross-feature validation. Do not require `.kiro/specs/common/design.md`. If `stub.md` exists, validate whether behavior matches agreed non-stub design or explicitly allowed placeholders.
+8. In the validation result, make it clear which split design files were used as evidence where possible.
+
+- If `design.md` references files under `design/` but those files are missing, do not treat the design-alignment check as complete.
+- If split design is expected for the feature but `.kiro/specs/<feature>/design/` is missing or empty, treat that as missing specification evidence.
+- This rule applies only to the `validate-impl` workflow.

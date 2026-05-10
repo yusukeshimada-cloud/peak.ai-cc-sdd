@@ -1,0 +1,89 @@
+---
+description: Feature-scoped design.md hub and design/*.md splits on spec-design (no common design file)
+alwaysApply: true
+---
+
+# Spec Design Split Rule
+
+When handling `/kiro/spec-design <featureId>` for this project, generate design artifacts **per feature only**. Do **not** create a shared whole-product design file under `.kiro/specs/common/` (for example **do not** generate `.kiro/specs/common/design.md` and **do not** introduce a separate `common.md` for design output).
+
+## Where common / cross-cutting content lives
+
+- **Common behavioral and cross-feature specifications** belong in that feature's **`.kiro/specs/<featureId>/design.md`** (same file as the hub and summary), not in a separate repository-wide design file for this workflow.
+
+## Stubs
+
+- When **stubs** (provisional contracts, placeholders, or TBD interfaces) are required, document them in **`.kiro/specs/<featureId>/stub.md`** at the feature root (sibling of `design.md`).
+
+## Generated layout per feature
+
+### 1. `.kiro/specs/<featureId>/design.md` (overview / hub / summary)
+
+`design.md` **must** include:
+
+- **Prerequisites**: requirements, constraints, and specs the feature builds on (including cross-cutting rules that matter *for this feature*).
+- **Hub**: how this feature connects to **other features** (dependencies, shared data, integration boundaries). Point readers to other features' `design.md` or `design/*.md` when relevant.
+- **Summary**: concise design intent, responsibility, and boundary; **references** to the split files under `design/` (and to `stub.md` if present).
+
+### 2. `.kiro/specs/<featureId>/design/` (split detailed design)
+
+Create the subdirectory `design/` when detailed design is needed. Use **only the file kinds below**. Create a file **only when that kind applies** to the feature (omit kinds that do not apply; say in feature `design.md` if a kind is explicitly out of scope).
+
+| File | Purpose |
+|------|---------|
+| **`ui.md`** | **画面定義**: レイアウト、イベント、遷移フローなど。フロントエンドとバックエンドは一旦分けず **一本の文書** にまとめる。 |
+| **`api.md`** | **API 定義**: エンドポイント、リクエスト/レスポンス、エラー、認証など。 |
+| **`batch.md`** | **バッチ処理定義**: スケジュール、処理フロー、入出力、リトライ方針など。 |
+| **`integration.md`** | **外部 I/F 定義**: 連携方式、マッピング、相手システムとの契約など。 |
+| **`report.md`** | **帳票定義**: 用紙サイズ、レイアウト、出力形式、ファイル名規則など。 |
+
+- **Do not** use old split-file names such as `data-model.md` or `api.openapi.md` for new work; prefer **`api.md`** (and put OpenAPI shape inside it if needed).
+- If a legacy split design file already exists, migrate its applicable content into the supported destination files during the same `/kiro/spec-design` run.
+- After migration, update `design.md` references to the supported file names and delete the legacy files.
+- Do not leave both a legacy file and its canonical replacement in the same feature folder after `/kiro/spec-design`.
+- If multiple processing categories apply, create **multiple** files under `design/`.
+- **Do not guess** missing technical detail; when information is insufficient, state that explicitly in the relevant `design/*.md` or feature `design.md`.
+
+## Template mapping
+
+`.kiro/settings/templates/specs/design.md` is the design template. Because the split layout distributes content across `design.md` and `design/*.md`, map each template section to the appropriate file using the table below.
+
+### Mapping table
+
+| Template section | Primary destination | Condition / notes |
+|------------------|--------------------|--------------------|
+| **Overview** (Purpose, Users, Goals, Non-Goals) | `design.md` サマリー | Goals → スコープ内、Non-Goals → スコープ外 として記載。 |
+| **Architecture** (Existing Analysis, Pattern & Boundary Map, Technology Stack) | `design.md` 前提 + サマリー | 適用 steering を前提に列挙。境界マップはサマリーの Mermaid 図で表現。技術スタック表は機能固有の選択がある場合のみ含める。 |
+| **System Flows** | `design.md` サマリー（概要フロー） + 各分割ファイル（詳細フロー） | 全体シーケンスは `design.md` に置く。画面遷移フローは `ui.md`、API 処理フローは `api.md`、バッチフローは `batch.md` に置く。 |
+| **Requirements Traceability** | `design.md` ハブ | 要件 → 設計要素（コンポーネント・分割ファイル）のマッピング表。単純な 1:1 対応のみの場合はサマリーの対応要件記載で代替可。 |
+| **Components and Interfaces** | 各分割ファイル | UI コンポーネントは `ui.md`、Controller / Service / Repository は `api.md`、バッチジョブは `batch.md`、外部連携は `integration.md`。コンポーネント一覧表は `design.md` サマリーに置いてもよい。 |
+| **Data Models** (Domain / Logical / Physical) | `design.md` | データモデルは `design.md` に記載する。複数の分割ファイルから参照される共通資産であり、ハブに置くことで単一ソースを維持する。各分割ファイルからは `design.md` のデータモデルセクションを参照のみとする。 |
+| **Error Handling** | 各分割ファイル | API エラーは `api.md`、画面エラー表示は `ui.md`、バッチエラーは `batch.md` にそれぞれ記載。 |
+| **Testing Strategy** | 各分割ファイル | Unit / Integration テストは `api.md` または `batch.md`、E2E / UI テストは `ui.md` に記載。 |
+| **Security Considerations** (optional) | `design.md` 前提 or `api.md` | steering の共通セキュリティは `design.md` 前提で参照。機能固有のセキュリティ判断は `api.md` に記載。 |
+| **Performance & Scalability** (optional) | `design.md` サマリー or 該当分割ファイル | 機能固有のパフォーマンス要件がある場合のみ記載。 |
+| **Migration Strategy** (optional) | `design.md` or 該当分割ファイル | スキーマ変更やデータ移行がある場合のみ記載。 |
+| **Supporting References** (optional) | `design.md` | 大きな定義や調査結果は `research.md` に委譲し、結論のみ `design.md` に記載。 |
+
+### Mapping rules
+
+- Each split file **must** reflect the applicable template sections from the table above. Do not omit a template section just because the content lives in a split file instead of `design.md`.
+- When a template section says "skip for simple CRUD" or "include when relevant", apply the same judgment per split file.
+- If a template section maps to multiple split files, write the **primary definition** in one file and **reference** it from the others to avoid duplication.
+- The template's approach guidance ("Use diagrams and tables over lengthy prose", "Match detail level to feature complexity", "1000 lines warning") applies to each split file individually.
+
+## Process (high level)
+
+1. Read **`.kiro/settings/templates/specs/design.md`** as the design template.
+2. Use **`requirement-input-feature-list.md`**, **`.kiro/specs/<featureId>/requirements.md`**, **steering**, and existing code/specs as inputs.
+3. Determine which split files (`ui.md`, `api.md`, `batch.md`, `integration.md`, `report.md`) apply to this feature based on its processing category.
+4. For each applicable split file, identify which template sections map to it (see mapping table) and include the relevant content.
+5. Write or update **feature** `design.md` (prerequisites + hub + summary + references), incorporating the template sections that map to `design.md`.
+6. Write or update only the **applicable** files under **`design/`**, incorporating the template sections that map to each file.
+7. If legacy split design files exist, migrate their content into the canonical files, update references, and delete the legacy files in the same run.
+8. Add or update **`stub.md`** only when stubs are needed.
+9. **Do not overwrite unrelated existing files.**
+
+- If safe migration cannot be completed because a legacy file contains unresolved content, conflicting references, or ambiguous destination mapping, stop and ask for clarification instead of partially deleting files.
+
+This rule applies only to the **`spec-design`** workflow.

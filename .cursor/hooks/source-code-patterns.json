@@ -1,0 +1,16 @@
+{
+  "extensions": [
+    ".java", ".kt", ".scala", ".groovy",
+    ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs",
+    ".py", ".rb", ".go", ".rs", ".c", ".cpp", ".h", ".hpp", ".cs", ".swift",
+    ".vue", ".svelte",
+    ".html", ".htm", ".css", ".scss", ".sass", ".less",
+    ".sql",
+    ".sh", ".bash", ".zsh",
+    ".properties", ".yml", ".yaml", ".xml", ".gradle", ".toml",
+    ".graphql", ".proto"
+  ],
+  "filenames": [
+    "Dockerfile", "Makefile", "Jenkinsfile", "Vagrantfile", "Rakefile", "Gemfile"
+  ]
+}

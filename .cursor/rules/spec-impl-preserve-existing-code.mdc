@@ -1,0 +1,13 @@
+---
+description: Preserve existing code style and structure on spec-impl changes
+alwaysApply: true
+---
+
+# Spec Impl Existing Code Preservation Rule
+
+When handling `/kiro/spec-impl`, if implementation requires modification of existing source code, preserve the existing code as the default approach.
+
+- When modifying existing source code, follow the current code structure, naming, and responsibilities unless a change is necessary for implementation, readability, or maintainability.
+- Prefer minimal and localized changes over broad rewrites.
+- Do not broadly replace existing code when the required implementation can be completed by extending or partially modifying the current code.
+- This rule applies only to the `spec-impl` workflow.

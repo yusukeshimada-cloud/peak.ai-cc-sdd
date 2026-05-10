@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "review-server": {
+      "command": "node",
+      "args": ["05_cc-sdd_specs分割/.cursor/mcp-review-server/server.mjs"],
+      "env": {
+        "REVIEW_BASE_BRANCH": "develop"
+      }
+    }
+  }
+}

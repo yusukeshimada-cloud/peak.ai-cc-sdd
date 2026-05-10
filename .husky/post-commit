@@ -1,0 +1,24 @@
+#!/bin/sh
+# コミット成功後にレビューステータスファイルを削除する
+# 次回コミット時に新しいレビューが必須になる
+
+FINDINGS_DIR="05_cc-sdd_specs分割/review-findings"
+
+deleted=0
+
+for f in \
+  "$FINDINGS_DIR/review-queue.json" \
+  "$FINDINGS_DIR/security-review-queue.json"
+do
+  if [ -f "$f" ]; then
+    rm -f "$f"
+    deleted=$((deleted + 1))
+  fi
+done
+
+if [ "$deleted" -gt 0 ]; then
+  echo ""
+  echo "  [post-commit] レビューステータスファイルを ${deleted} 件削除しました。"
+  echo "  次回コミット時は新たにレビューが必要です。"
+  echo ""
+fi

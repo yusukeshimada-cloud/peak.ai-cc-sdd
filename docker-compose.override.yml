@@ -1,0 +1,11 @@
+# ローカル開発用オーバーライド: `docker-compose up` (override 自動適用) で DB のみ起動する。
+# backend・frontend はローカルの `./gradlew bootRun` / `npm run dev` で起動する。
+version: "3.8"
+
+services:
+  backend:
+    profiles:
+      - full
+  frontend:
+    profiles:
+      - full

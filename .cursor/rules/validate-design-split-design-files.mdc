@@ -1,0 +1,21 @@
+---
+description: Review split design artifacts on validate-design
+alwaysApply: true
+---
+
+# Validate Design Split Rule
+
+When handling `/kiro/validate-design` for this project, review split design artifacts as part of the design evidence.
+
+1. Treat `.kiro/specs/<feature>/design.md` as the overview design artifact.
+2. Treat `.kiro/specs/<feature>/design/*.md` as the detailed design artifacts split by processing category.
+3. Use `spec-design-split-design-files.mdc` as the source of truth for the `design/` directory structure, file kinds, and split granularity.
+4. If `design.md` references files under `design/`, read all referenced files before completing the review.
+5. If files exist under `design/`, do not complete the review based on `design.md` alone.
+6. Verify consistency between the overview in `design.md` and the detailed artifacts under `design/`.
+7. Cross-cutting context for a feature lives in that feature’s `design.md` (hub). For interface consistency across features, read related features’ `design.md` and their `design/*.md` where relevant. Do not assume a separate `.kiro/specs/common/design.md` exists (spec-design does not generate it).
+8. When reporting issues or assessments, cite `design.md` and the relevant split design files whenever possible.
+
+- If `design.md` references files under `design/` but those files are missing, do not treat the review as complete.
+- If split design is expected for the feature but `.kiro/specs/<feature>/design/` is missing or empty, direct the user to re-run `/kiro/spec-design`.
+- This rule applies only to the `validate-design` workflow.
