@@ -14,7 +14,7 @@ Qiita を模擬した情報共有アプリです。ユーザー登録・認証�
 
 ```bash
 git clone <repository-url>
-cd 05_cc-sdd_specs分割
+cd cc-sdd
 ```
 
 ### 2. データベースの起動
@@ -189,7 +189,7 @@ git diff develop...HEAD
   "mcpServers": {
     "review-server": {
       "command": "node",
-      "args": ["05_cc-sdd_specs分割/.cursor/mcp-review-server/server.mjs"],
+      "args": [".cursor/mcp-review-server/server.mjs"],
       "env": {
         "REVIEW_BASE_BRANCH": "main"
       }
@@ -223,31 +223,23 @@ staged ファイルにソースコードが **1 つも含まれない場合** �
 
 ### セットアップ手順
 
-#### 1. Node.js 依存パッケージのインストール
-
-プロジェクトルート（リポジトリ直下）で実行します。Husky と MCP SDK がインストールされます。
+#### 1. Husky の有効化
 
 ```bash
-npm install
-```
-
-#### 2. Husky の有効化
-
-```bash
-npx husky install
+git config core.hooksPath .husky
 ```
 
 > Git の `core.hooksPath` が `.husky` に設定され、`pre-commit` / `post-commit` フックが有効になります。
 
-#### 3. MCP サーバーの依存パッケージインストール
+#### 2. MCP サーバーの依存パッケージインストール
 
 ```bash
-cd 05_cc-sdd_specs分割/.cursor/mcp-review-server
+cd .cursor/mcp-review-server
 npm install
-cd ../../..
+cd ../..
 ```
 
-#### 4. Cursor の MCP サーバー登録確認
+#### 3. Cursor の MCP サーバー登録確認
 
 `.cursor/mcp.json` に以下の設定が含まれていることを確認してください（リポジトリに同梱済み）。
 
@@ -256,7 +248,7 @@ cd ../../..
   "mcpServers": {
     "review-server": {
       "command": "node",
-      "args": ["05_cc-sdd_specs分割/.cursor/mcp-review-server/server.mjs"]
+      "args": [".cursor/mcp-review-server/server.mjs"]
     }
   }
 }
@@ -264,14 +256,14 @@ cd ../../..
 
 Cursor を開いた状態で **MCP サーバーが認識されていない場合**、Cursor を再起動してください。
 
-#### 5. Cursor Hook の確認
+#### 4. Cursor Hook の確認
 
 `.cursor/hooks.json` がリポジトリに同梱済みです。以下のフックが登録されていることを確認してください。
 
 - `beforeShellExecution`: `git commit` 時に `auto-review-gate.mjs` を実行
 - `stop`: エージェント停止時に `review-loop-continue.mjs` を実行
 
-#### 6. 動作確認
+#### 5. 動作確認
 
 ```bash
 # ステータスファイルがない状態でコミットを試行 → ブロックされることを確認
@@ -292,21 +284,19 @@ git commit -m "test"
 │   ├── review-loop-continue.mjs  # stop 時のループ継続判定
 │   ├── review-shared.mjs         # 共通ロジック（状態判定等）
 │   └── block-dangerous-shell.mjs # 危険コマンドブロック
+├── mcp-review-server/
+│   ├── server.mjs                # MCP サーバー本体
+│   ├── server.test.mjs           # ユニットテスト
+│   ├── review-prompt.md          # 通常レビュープロンプト
+│   ├── security-review-prompt.md # セキュリティレビュープロンプト
+│   └── package.json
+├── commands/
+│   └── pr/create.md              # /pr create コマンド定義
 ├── mcp.json                      # MCP サーバー登録
 .husky/
 ├── pre-commit                    # サードパーティ Git クライアント向けゲート
 ├── post-commit                   # コミット成功後ステータス削除
-05_cc-sdd_specs分割/
-├── .cursor/
-│   ├── mcp-review-server/
-│   │   ├── server.mjs            # MCP サーバー本体
-│   │   ├── server.test.mjs       # ユニットテスト
-│   │   ├── review-prompt.md      # 通常レビュープロンプト
-│   │   ├── security-review-prompt.md # セキュリティレビュープロンプト
-│   │   └── package.json
-│   └── commands/
-│       └── pr/create.md          # /pr create コマンド定義
-├── review-findings/              # ステータスファイル（git管理外）
+review-findings/                  # ステータスファイル（git管理外）
 │   ├── review-queue.json
 │   └── security-review-queue.json
 ```

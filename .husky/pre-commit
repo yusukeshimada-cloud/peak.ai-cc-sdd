@@ -31,8 +31,8 @@ if [ "$HAS_SOURCE" -eq 0 ]; then
 fi
 
 # --- レビューゲート ---
-GENERAL_QUEUE="05_cc-sdd_specs分割/review-findings/review-queue.json"
-SECURITY_QUEUE="05_cc-sdd_specs分割/review-findings/security-review-queue.json"
+GENERAL_QUEUE="review-findings/review-queue.json"
+SECURITY_QUEUE="review-findings/security-review-queue.json"
 
 if [ ! -f "$GENERAL_QUEUE" ] || [ ! -f "$SECURITY_QUEUE" ]; then
   echo ""

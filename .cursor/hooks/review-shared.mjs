@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = join(__dirname, "..", "..");
-const FINDINGS_DIR = join(PROJECT_ROOT, "05_cc-sdd_specs分割", "review-findings");
+const FINDINGS_DIR = join(PROJECT_ROOT, "review-findings");
 
 const patterns = JSON.parse(readFileSync(join(__dirname, "source-code-patterns.json"), "utf-8"));
 const SOURCE_CODE_EXTENSIONS = new Set(patterns.extensions);

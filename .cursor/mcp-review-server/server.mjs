@@ -29,8 +29,7 @@ if (existsSync(ENV_FILE)) {
 
 if (!existsSync(FINDINGS_DIR)) mkdirSync(FINDINGS_DIR, { recursive: true });
 
-const REPO_ROOT = join(PROJECT_ROOT, "..");
-const _scPatterns = JSON.parse(readFileSync(join(REPO_ROOT, ".cursor", "hooks", "source-code-patterns.json"), "utf-8"));
+const _scPatterns = JSON.parse(readFileSync(join(PROJECT_ROOT, ".cursor", "hooks", "source-code-patterns.json"), "utf-8"));
 const SOURCE_CODE_EXTENSIONS = new Set(_scPatterns.extensions);
 const SOURCE_CODE_FILENAMES = new Set(_scPatterns.filenames);
 
